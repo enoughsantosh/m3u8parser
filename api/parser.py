@@ -1,32 +1,26 @@
 import m3u8
 import requests
-from flask import Flask, request, jsonify
+from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 
-app = Flask(__name__)
+app = FastAPI()
 
-@app.route("/parse", methods=["GET"])
-def parse_master_playlist():
-    url = request.args.get("url")
-    
-
-    if not url:
-        return jsonify({"error": "Missing M3U8 URL"}), 400
-
+@app.get("/parse")
+async def parse_master_playlist(url: str, referer: str = ""):
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36",
-        "Referer": "https://toonstream.co"
+        "User-Agent": "Mozilla/5.0",
+        "Referer": referer
     }
 
     try:
         response = requests.get(url, headers=headers)
-
         if response.status_code != 200:
-            return jsonify({"error": "Failed to fetch M3U8 file"}), 500
+            return JSONResponse(content={"error": "Failed to fetch M3U8 file"}, status_code=500)
 
         master_playlist = m3u8.loads(response.text)
 
         if not master_playlist.is_variant:
-            return jsonify({"error": "Not a master playlist"}), 400
+            return JSONResponse(content={"error": "Not a master playlist"}, status_code=400)
 
         streams = [
             {
@@ -37,11 +31,13 @@ def parse_master_playlist():
             for playlist in master_playlist.playlists
         ]
 
-        return jsonify({"streams": streams})
+        return {"streams": streams}
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return JSONResponse(content={"error": str(e)}, status_code=500)
 
-# Required for Vercel deployment
-def handler(event, context):
-    return app(event, context)
+# Vercel needs a handler
+import os
+if os.environ.get("VERCEL"):
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
