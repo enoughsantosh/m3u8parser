@@ -2,8 +2,9 @@ const fetch = require("node-fetch");
 const m3u8Parser = require("m3u8-parser");
 
 module.exports = async (req, res) => {
-    const { url } = req.query;
+    res.setHeader("Content-Type", "application/json");
 
+    const { url } = req.query;
     if (!url) {
         return res.status(400).json({ error: "M3U8 URL is required" });
     }
