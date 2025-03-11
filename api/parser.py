@@ -7,14 +7,14 @@ app = Flask(__name__)
 @app.route("/parse", methods=["GET"])
 def parse_master_playlist():
     url = request.args.get("url")
-    referer = request.args.get("referer", "")
+    
 
     if not url:
         return jsonify({"error": "Missing M3U8 URL"}), 400
 
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36",
-        "Referer": referer
+        "Referer": "https://toonstream.co"
     }
 
     try:
