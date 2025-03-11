@@ -13,9 +13,8 @@ module.exports = async (req, res) => {
         const response = await fetch(url, {
             method: "GET",
             headers: {
-                "Referer": "https://toonstream.co",
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"
-            }
+                "Referer": "https://toonstream.co"
+                            }
         });
 
         if (!response.ok) {
